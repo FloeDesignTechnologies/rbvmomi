@@ -77,6 +77,8 @@ class RbVmomi::TrivialSoap
   def request action, body
     headers = { 'content-type' => 'text/xml; charset=utf-8', 'SOAPAction' => action }
     headers['cookie'] = @cookie if @cookie
+    # some vSphere providers proxies have issues replying with gzip
+    headers['accept-encoding'] = 'identity'
 
     if @debug
       $stderr.puts "Request:"
