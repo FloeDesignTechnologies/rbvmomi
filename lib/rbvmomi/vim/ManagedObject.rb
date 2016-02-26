@@ -13,8 +13,15 @@ class RbVmomi::VIM::ManagedObject
       :objectSet => [{ :obj => self }],
     }, :partialUpdates => false
     ver = ''
+    wait_options = RbVmomi::VIM::WaitOptions.new(:maxWaitSeconds => 30)
     loop do
-      result = _connection.propertyCollector.WaitForUpdates(:version => ver)
+      # Pull for updates to work around possible proxies timeouts
+      begin
+        result = _connection.propertyCollector.WaitForUpdatesEx(
+                   :version => ver,
+                   :options => wait_options)
+        puts "waiting ..."
+      end until result != nil
       ver = result.version
       if x = b.call
         return x
